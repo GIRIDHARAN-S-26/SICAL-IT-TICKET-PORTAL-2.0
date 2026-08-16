@@ -27,11 +27,19 @@
             transition: background-color 0.3s ease, color 0.3s ease; 
         }
 
+        /* Fixed background sizing to fit screen perfectly */
         .login-bg {
             background-image: linear-gradient(rgba(15, 23, 42, 0.70), rgba(15, 23, 42, 0.70)), 
                               url('SICAL IT SUPPORT BG2.jpg');
-            background-size: cover;
+            background-size: 100% 100%;
             background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        @media (max-width: 768px) {
+            .login-bg {
+                background-size: cover;
+            }
         }
 
         .sidebar-transition {
