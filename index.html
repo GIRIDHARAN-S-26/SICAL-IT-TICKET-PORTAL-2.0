@@ -452,12 +452,12 @@
        </form>
       </div>
 
-      <!-- BULK UPLOAD ASSET REGISTER -->
+      <!-- BULK UPLOAD ASSET REGISTER (18 COLUMNS) -->
       <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
        <div class="flex justify-between items-center">
         <div>
-         <h3 class="text-lg font-bold text-slate-800">Bulk Upload SICAL Master Asset Register</h3>
-         <p class="text-xs text-slate-500 mt-0.5">Supports 11-column layout: <b>Asset Number, ALLOCATE TO, User Mail ID, Department, Asset Type, Location, MANUFACTURER NAME, ASSET MODEL, SERIAL NUMBER, System Name, REMARKS</b></p>
+         <h3 class="text-lg font-bold text-slate-800">Bulk Upload SICAL Master Asset Register (18-Column Extended Layout)</h3>
+         <p class="text-xs text-slate-500 mt-0.5">Supports: <b>Asset Number, ALLOCATE TO, User Mail ID, Department, Asset Type, Location, MANUFACTURER NAME, ASSET MODEL, SERIAL NUMBER, System Name, REMARKS, MEMORY SIZE, PROCESSOR, OPERATING SYSTEM, HARD DRIVE SIZE, OS Upg. Required?, One drive, USB Access</b></p>
         </div>
         <button onclick="downloadCSVTemplate()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 font-bold px-3 py-1.5 rounded flex items-center space-x-1"> <i class="fa-solid fa-download"></i> <span>Download Format Template</span> </button>
        </div>
@@ -475,9 +475,9 @@
        </div>
       </div>
 
-      <!-- NEW MANUAL ASSET ENTRY FORM -->
+      <!-- NEW MANUAL ASSET ENTRY FORM (EXTENDED 18 COLUMNS) -->
       <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
-       <h3 class="text-lg font-bold text-slate-800 border-b border-slate-100 pb-2">Add New Single Asset Manually</h3>
+       <h3 class="text-lg font-bold text-slate-800 border-b border-slate-100 pb-2">Add New Single Asset Manually (Full Specs)</h3>
        <form onsubmit="handleManualAssetSubmit(event)" class="space-y-4">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
          <div>
@@ -500,7 +500,7 @@
          </div>
          <div>
           <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Asset Type</label>
-          <input type="text" id="manual-asset-type" placeholder="e.g. LAPTOP / DESKTOP" required class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-red-500">
+          <input type="text" id="manual-asset-type" placeholder="e.g. LAPTOP" required class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-red-500">
          </div>
          <div>
           <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Location</label>
@@ -509,7 +509,7 @@
         </div>
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
          <div>
-          <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Manufacturer Name</label>
+          <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Manufacturer</label>
           <input type="text" id="manual-manufacturer" placeholder="e.g. LENOVO" required class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-red-500">
          </div>
          <div>
@@ -523,6 +523,48 @@
          <div>
           <label class="block text-xs font-bold text-slate-600 uppercase mb-1">System Name</label>
           <input type="text" id="manual-system-name" placeholder="e.g. SICLT800" required class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-red-500">
+         </div>
+        </div>
+        <!-- NEW TECHNICAL SPECS FIELDS -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 bg-slate-50 p-4 rounded-lg border border-slate-200">
+         <div>
+          <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Memory Size</label>
+          <input type="text" id="manual-memory" placeholder="e.g. 16 GB" required class="w-full border border-slate-300 rounded-lg p-2 text-sm bg-white">
+         </div>
+         <div>
+          <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Processor</label>
+          <input type="text" id="manual-processor" placeholder="e.g. Intel i5 12th Gen" required class="w-full border border-slate-300 rounded-lg p-2 text-sm bg-white">
+         </div>
+         <div>
+          <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Operating System</label>
+          <input type="text" id="manual-os" placeholder="e.g. Windows 11 Pro" required class="w-full border border-slate-300 rounded-lg p-2 text-sm bg-white">
+         </div>
+         <div>
+          <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Hard Drive Size</label>
+          <input type="text" id="manual-hdd" placeholder="e.g. 512 GB SSD" required class="w-full border border-slate-300 rounded-lg p-2 text-sm bg-white">
+         </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+         <div>
+          <label class="block text-xs font-bold text-slate-600 uppercase mb-1">OS Upg. Required?</label>
+          <select id="manual-os-upg" class="w-full border border-slate-300 rounded-lg p-2 text-sm">
+           <option value="No">No</option>
+           <option value="Yes">Yes</option>
+          </select>
+         </div>
+         <div>
+          <label class="block text-xs font-bold text-slate-600 uppercase mb-1">One drive</label>
+          <select id="manual-onedrive" class="w-full border border-slate-300 rounded-lg p-2 text-sm">
+           <option value="Configured">Configured</option>
+           <option value="Pending">Pending</option>
+          </select>
+         </div>
+         <div>
+          <label class="block text-xs font-bold text-slate-600 uppercase mb-1">USB Access</label>
+          <select id="manual-usb" class="w-full border border-slate-300 rounded-lg p-2 text-sm">
+           <option value="Enabled">Enabled</option>
+           <option value="Disabled">Disabled</option>
+          </select>
          </div>
         </div>
         <div>
@@ -1420,7 +1462,7 @@
             showToast('SMTP Configuration Saved Successfully!');
         }
 
-        // MANUAL ASSET SUBMIT
+        // MANUAL ASSET SUBMIT (18 COLUMNS)
         function handleManualAssetSubmit(e) {
             e.preventDefault();
             const assetNo = document.getElementById('manual-asset-no').value.trim();
@@ -1434,16 +1476,29 @@
             const serial = document.getElementById('manual-serial').value.trim();
             const systemName = document.getElementById('manual-system-name').value.trim();
             const remarks = document.getElementById('manual-remarks').value.trim();
+            
+            // New Extended Specs
+            const memory = document.getElementById('manual-memory').value.trim();
+            const processor = document.getElementById('manual-processor').value.trim();
+            const os = document.getElementById('manual-os').value.trim();
+            const hdd = document.getElementById('manual-hdd').value.trim();
+            const osUpg = document.getElementById('manual-os-upg').value.trim();
+            const onedrive = document.getElementById('manual-onedrive').value.trim();
+            const usb = document.getElementById('manual-usb').value.trim();
 
             if (assetMasterList.some(a => a.assetNo.toLowerCase() === assetNo.toLowerCase())) {
                 showToast(`Asset Number "${assetNo}" already exists!`, 'error');
                 return;
             }
 
-            assetMasterList.push({ assetNo, allocatedTo, userMail, department, assetType, location, manufacturer, model, serial, systemName, remarks });
+            assetMasterList.push({ 
+                assetNo, allocatedTo, userMail, department, assetType, location, 
+                manufacturer, model, serial, systemName, remarks,
+                memory, processor, os, hdd, osUpg, onedrive, usb 
+            });
             saveAssets();
             populateUserDropdown();
-            showToast(`Asset "${assetNo}" added permanently!`, 'success');
+            showToast(`Asset "${assetNo}" added permanently with full specs!`, 'success');
             e.target.reset();
         }
 
@@ -1470,7 +1525,7 @@
                 document.getElementById('ticket-department').value = match.department || '';
                 document.getElementById('ticket-location').value = match.location || '';
                 document.getElementById('ticket-asset').value = match.assetNo || '';
-                document.getElementById('ticket-model').value = `${match.manufacturer} ${match.model}`.trim();
+                document.getElementById('ticket-model').value = `${match.manufacturer} ${match.model} (${match.memory || ''}, ${match.processor || ''})`.trim();
                 document.getElementById('ticket-serial').value = match.serial || '';
                 document.getElementById('ticket-system-name').value = match.systemName || '';
             }
@@ -1898,7 +1953,7 @@
             }
         }
 
-        // FILE UPLOAD
+        // FILE UPLOAD (SUPPORTING 18 COLUMNS)
         function handleFileUpload(event) {
             const file = event.target.files[0];
             if (file) {
@@ -1920,10 +1975,23 @@
                             const serial = cols[8] ? cols[8].trim() : '';
                             const systemName = cols[9] ? cols[9].trim() : '';
                             const remarks = cols[10] ? cols[10].trim() : '';
+                            
+                            // New Extended Specs (columns 11 to 17)
+                            const memory = cols[11] ? cols[11].trim() : '';
+                            const processor = cols[12] ? cols[12].trim() : '';
+                            const os = cols[13] ? cols[13].trim() : '';
+                            const hdd = cols[14] ? cols[14].trim() : '';
+                            const osUpg = cols[15] ? cols[15].trim() : '';
+                            const onedrive = cols[16] ? cols[16].trim() : '';
+                            const usb = cols[17] ? cols[17].trim() : '';
+
                             if (assetNo !== '') {
-                                // Prevent duplicates
                                 if (!assetMasterList.some(a => a.assetNo.toLowerCase() === assetNo.toLowerCase())) {
-                                    assetMasterList.push({ assetNo, allocatedTo, userMail, department, assetType, location, manufacturer, model, serial, systemName, remarks });
+                                    assetMasterList.push({ 
+                                        assetNo, allocatedTo, userMail, department, assetType, location, 
+                                        manufacturer, model, serial, systemName, remarks,
+                                        memory, processor, os, hdd, osUpg, onedrive, usb 
+                                    });
                                 }
                                 if (location !== '' && !locationsList.includes(location)) {
                                     locationsList.push(location);
@@ -1942,19 +2010,19 @@
                         document.getElementById('asset-count-badge').innerText = `${assetMasterList.length} Total Assets Registered`;
                         statusBox.classList.remove('hidden');
                     }
-                    showToast(`${assetMasterList.length} total assets stored permanently.`);
+                    showToast(`${assetMasterList.length} total assets stored permanently with full specs.`);
                 };
                 reader.readAsText(file);
             }
         }
 
         function downloadCSVTemplate() {
-            const csvHeader = "Asset Number,ALLOATE TO,User Mail ID,Department,Asset Type,Location,MANUFACTURER NAME,ASSET MODEL,SERIAL NUMBER,System Name,REMARKS\n"
-                            + "SICAL/LT/793,Rajadurai K.,rajadurai@sical.com,SMART-CFS,LAPTOP,TUTICORIN-SMARTCFS,LENOVO,E14 G5,PF04TQDN,SICLT793,..\n";
+            const csvHeader = "Asset Number,ALLOATE TO,User Mail ID,Department,Asset Type,Location,MANUFACTURER NAME,ASSET MODEL,SERIAL NUMBER,System Name,REMARKS,MEMORY SIZE,PROCESSOR,OPERATING SYSTEM,HARD DRIVE SIZE,OS Upg.Required?,One drive,USB Access\n"
+                            + "SICAL/LT/793,Rajadurai K.,rajadurai@sical.com,SMART-CFS,LAPTOP,TUTICORIN-SMARTCFS,LENOVO,E14 G5,PF04TQDN,SICLT793,..,16 GB,Intel i5,Windows 11 Pro,512 GB SSD,No,Configured,Enabled\n";
             const blob = new Blob([csvHeader], { type: 'text/csv' });
             const link = document.createElement("a");
             link.setAttribute("href", URL.createObjectURL(blob));
-            link.setAttribute("download", "SICAL_Master_Asset_Template.csv");
+            link.setAttribute("download", "SICAL_Master_Asset_Template_18Cols.csv");
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
