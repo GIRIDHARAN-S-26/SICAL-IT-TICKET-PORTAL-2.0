@@ -102,8 +102,7 @@
    <div class="bg-white/95 backdrop-blur-md p-8 rounded-xl shadow-2xl w-full max-w-md border border-slate-200">
     <div class="text-center mb-6">
      <h1 class="text-3xl font-extrabold text-red-600 tracking-wider">SICAL</h1>
-     <p class="text-xs font-semibold text-slate-600 uppercase tracking-widest mt-1"></p>
-     <p class="text-xs text-indigo-900 font-medium italic">A PRISTINE GROUP COMPANY</p>
+     <p class="text-xs text-indigo-900 font-medium italic mt-1">A PRISTINE GROUP COMPANY</p>
      <div class="h-1 w-16 bg-red-600 mx-auto my-4 rounded"></div>
      <h2 class="text-lg font-bold text-slate-700">IT Helpdesk Portal Login</h2>
     </div>
@@ -145,6 +144,7 @@
    <aside id="sidebar-menu" class="sidebar-transition w-64 bg-slate-900 text-slate-300 flex-shrink-0 flex flex-col min-h-screen sticky top-0 z-30">
     <div class="p-4 border-b border-slate-800 text-center flex-shrink-0">
      <h1 class="text-2xl font-black text-red-500 tracking-wider">SICAL</h1>
+     <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest whitespace-nowrap">Multimodal &amp; Rail Transport</p>
      <p class="text-[9px] text-indigo-300 italic whitespace-nowrap">A PRISTINE GROUP COMPANY</p>
     </div>
     <nav class="p-4 space-y-1 flex-1">
@@ -979,8 +979,11 @@
     </div>
     <form onsubmit="handleTicketSubmit(event)" class="p-6 space-y-4 overflow-y-auto flex-1">
      <div>
-      <label class="block text-xs font-bold text-slate-700 uppercase mb-1"> <i class="fa-solid fa-magnifying-glass text-red-600 mr-1"></i> Search Employee Name or Asset TAG (Auto-Fill) </label> 
-      <input type="text" id="asset-search-input" list="asset-datalist" placeholder="Type Asset TAG or Name..." oninput="handleAssetSearchSelect(this.value)" class="w-full border-2 border-amber-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-red-500 bg-amber-50/50 font-medium"> 
+      <div class="flex justify-between items-center mb-1">
+       <label class="block text-xs font-bold text-slate-700 uppercase"> <i class="fa-solid fa-magnifying-glass text-red-600 mr-1"></i> Search Employee Name or Asset Number (Auto-Fill) </label>
+       <button type="button" onclick="clearTicketSearch()" class="text-[11px] text-red-600 hover:text-red-800 font-bold underline"><i class="fa-solid fa-rotate-right mr-1"></i>Clear Search</button>
+      </div>
+      <input type="text" id="asset-search-input" list="asset-datalist" placeholder="Type Asset Number or Name..." oninput="handleAssetSearchSelect(this.value)" class="w-full border-2 border-amber-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-red-500 bg-amber-50/50 font-medium"> 
       <datalist id="asset-datalist"></datalist>
       <p class="text-[11px] text-slate-400 mt-1">Start typing to search existing master records, or manually enter details below.</p>
      </div>
@@ -1071,7 +1074,7 @@
             username: "SICAL ADMIN", 
             password: "$ic@L0826", 
             email: "admin@sical.com", 
-            location: "CHENNAI-RAJAH SALAI", 
+            location: "CHENNAI-RAJAJI SALAI", 
             role: "IT Admin / Support Agent", 
             active: true,
             perms: { dashboard: true, ticket: true, asset: true, history: true, reports: true, setup: true } 
@@ -1174,6 +1177,19 @@
         let currentTicketPage = 1;
         let currentReportPage = 1;
         const rowsPerPage = 15;
+
+        // CLEAR TICKET SEARCH & AUTO-FILL FIELDS
+        function clearTicketSearch() {
+            const searchInput = document.getElementById('asset-search-input');
+            if (searchInput) searchInput.value = '';
+            document.getElementById('ticket-name').value = '';
+            document.getElementById('ticket-department').value = '';
+            document.getElementById('ticket-asset').value = '';
+            document.getElementById('ticket-model').value = '';
+            document.getElementById('ticket-serial').value = '';
+            document.getElementById('ticket-system-name').value = '';
+            showToast('Search & auto-fill fields cleared.', 'info');
+        }
 
         // PASSWORD VISIBILITY TOGGLE
         function togglePasswordVisibility() {
@@ -2045,14 +2061,15 @@
             `).join('');
         }
 
-        // ASSET SEARCH
+        // ASSET SEARCH (SEARCH BY ASSET NUMBER OR EMPLOYEE NAME)
         function populateUserDropdown() {
             const datalist = document.getElementById('asset-datalist');
             if (!datalist) return;
             datalist.innerHTML = '';
             assetMasterList.forEach((item) => {
-                datalist.innerHTML += `<option value="${item.assetTag}">Asset TAG: ${item.assetTag} - ${item.allocatedTo} (${item.location})</option>`;
-                datalist.innerHTML += `<option value="${item.allocatedTo}">User: ${item.allocatedTo} (${item.assetTag})</option>`;
+                // Search suggestions by Asset Number and Employee Name
+                datalist.innerHTML += `<option value="${item.assetNo}">Asset No: ${item.assetNo} - ${item.allocatedTo} (${item.location})</option>`;
+                datalist.innerHTML += `<option value="${item.allocatedTo}">User: ${item.allocatedTo} (No: ${item.assetNo})</option>`;
             });
         }
 
@@ -2060,15 +2077,15 @@
             if (!val || val.trim() === '') return;
             const cleanVal = val.trim().toLowerCase();
             const match = assetMasterList.find(a => 
-                (a.assetTag && a.assetTag.toLowerCase() === cleanVal) || 
-                (a.assetNo && a.assetNo.toLowerCase() === cleanVal) ||
+                (a.assetNo && a.assetNo.toLowerCase() === cleanVal) || 
+                (a.assetTag && a.assetTag.toLowerCase() === cleanVal) ||
                 (a.allocatedTo && a.allocatedTo.toLowerCase() === cleanVal)
             );
             if (match) {
                 document.getElementById('ticket-name').value = match.allocatedTo || '';
                 document.getElementById('ticket-department').value = match.department || '';
                 document.getElementById('ticket-location').value = match.location || '';
-                document.getElementById('ticket-asset').value = match.assetTag || '';
+                document.getElementById('ticket-asset').value = match.assetTag || ''; // Records Asset Tag
                 document.getElementById('ticket-model').value = `${match.manufacturer} ${match.model} (${match.memory || ''}, ${match.processor || ''})`.trim();
                 document.getElementById('ticket-serial').value = match.serial || '';
                 document.getElementById('ticket-system-name').value = match.systemName || '';
