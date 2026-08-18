@@ -96,7 +96,7 @@
   <div id="toast-container"></div>
 
   <!-- ========================================== -->
-  <!-- 1. LOGIN SCREEN (Moved to Left Side)       -->
+  <!-- 1. LOGIN SCREEN                            -->
   <!-- ========================================== -->
   <div id="login-screen" class="min-h-screen w-full flex items-center justify-start pl-16 login-bg p-4 fixed inset-0 z-50">
    <div class="bg-white/95 backdrop-blur-md p-8 rounded-xl shadow-2xl w-full max-w-md border border-slate-200">
@@ -452,6 +452,7 @@
        </form>
       </div>
 
+      <!-- BULK UPLOAD ASSET REGISTER -->
       <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
        <div class="flex justify-between items-center">
         <div>
@@ -472,6 +473,64 @@
         </div>
         <span id="asset-count-badge" class="bg-emerald-200 text-emerald-900 font-bold px-2 py-0.5 rounded text-[10px]"></span>
        </div>
+      </div>
+
+      <!-- NEW MANUAL ASSET ENTRY FORM -->
+      <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
+       <h3 class="text-lg font-bold text-slate-800 border-b border-slate-100 pb-2">Add New Single Asset Manually</h3>
+       <form onsubmit="handleManualAssetSubmit(event)" class="space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+         <div>
+          <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Asset Number</label>
+          <input type="text" id="manual-asset-no" placeholder="e.g. SICAL/LT/800" required class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-red-500">
+         </div>
+         <div>
+          <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Allocate To (Name)</label>
+          <input type="text" id="manual-allocated-to" placeholder="e.g. John Doe" required class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-red-500">
+         </div>
+         <div>
+          <label class="block text-xs font-bold text-slate-600 uppercase mb-1">User Mail ID</label>
+          <input type="email" id="manual-user-mail" placeholder="john@sical.com" required class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-red-500">
+         </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+         <div>
+          <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Department</label>
+          <input type="text" id="manual-department" placeholder="e.g. IT / SMART-CFS" required class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-red-500">
+         </div>
+         <div>
+          <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Asset Type</label>
+          <input type="text" id="manual-asset-type" placeholder="e.g. LAPTOP / DESKTOP" required class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-red-500">
+         </div>
+         <div>
+          <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Location</label>
+          <select id="manual-location" required class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-red-500"></select>
+         </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+         <div>
+          <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Manufacturer Name</label>
+          <input type="text" id="manual-manufacturer" placeholder="e.g. LENOVO" required class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-red-500">
+         </div>
+         <div>
+          <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Asset Model</label>
+          <input type="text" id="manual-model" placeholder="e.g. ThinkPad E14" required class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-red-500">
+         </div>
+         <div>
+          <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Serial Number</label>
+          <input type="text" id="manual-serial" placeholder="e.g. PF04TQDN" required class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-red-500">
+         </div>
+         <div>
+          <label class="block text-xs font-bold text-slate-600 uppercase mb-1">System Name</label>
+          <input type="text" id="manual-system-name" placeholder="e.g. SICLT800" required class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-red-500">
+         </div>
+        </div>
+        <div>
+         <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Remarks</label>
+         <input type="text" id="manual-remarks" placeholder="Any additional notes..." class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-red-500">
+        </div>
+        <button type="submit" class="bg-red-600 hover:bg-red-700 text-white text-sm font-bold px-5 py-2.5 rounded-lg shadow-sm">Save Asset to Permanent Register</button>
+       </form>
       </div>
 
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -1068,7 +1127,7 @@
 
         // DROPDOWNS
         function renderLocationDropdowns() {
-            const dropdownIds = ['new-user-location', 'ticket-location', 'report-location-filter'];
+            const dropdownIds = ['new-user-location', 'ticket-location', 'report-location-filter', 'manual-location'];
             dropdownIds.forEach(id => {
                 const el = document.getElementById(id);
                 if (!el) return;
@@ -1359,6 +1418,33 @@
             localStorage.setItem('sical_smtp_host', host);
             localStorage.setItem('sical_smtp_helpdesk', helpdeskMail);
             showToast('SMTP Configuration Saved Successfully!');
+        }
+
+        // MANUAL ASSET SUBMIT
+        function handleManualAssetSubmit(e) {
+            e.preventDefault();
+            const assetNo = document.getElementById('manual-asset-no').value.trim();
+            const allocatedTo = document.getElementById('manual-allocated-to').value.trim();
+            const userMail = document.getElementById('manual-user-mail').value.trim();
+            const department = document.getElementById('manual-department').value.trim();
+            const assetType = document.getElementById('manual-asset-type').value.trim();
+            const location = document.getElementById('manual-location').value.trim().toUpperCase();
+            const manufacturer = document.getElementById('manual-manufacturer').value.trim();
+            const model = document.getElementById('manual-model').value.trim();
+            const serial = document.getElementById('manual-serial').value.trim();
+            const systemName = document.getElementById('manual-system-name').value.trim();
+            const remarks = document.getElementById('manual-remarks').value.trim();
+
+            if (assetMasterList.some(a => a.assetNo.toLowerCase() === assetNo.toLowerCase())) {
+                showToast(`Asset Number "${assetNo}" already exists!`, 'error');
+                return;
+            }
+
+            assetMasterList.push({ assetNo, allocatedTo, userMail, department, assetType, location, manufacturer, model, serial, systemName, remarks });
+            saveAssets();
+            populateUserDropdown();
+            showToast(`Asset "${assetNo}" added permanently!`, 'success');
+            e.target.reset();
         }
 
         // ASSET SEARCH
@@ -1820,7 +1906,6 @@
                 reader.onload = function(e) {
                     const text = e.target.result;
                     const lines = text.split('\n');
-                    assetMasterList = [];
                     for (let i = 1; i < lines.length; i++) {
                         const cols = lines[i].split(',');
                         if (cols.length >= 11) {
@@ -1836,7 +1921,10 @@
                             const systemName = cols[9] ? cols[9].trim() : '';
                             const remarks = cols[10] ? cols[10].trim() : '';
                             if (assetNo !== '') {
-                                assetMasterList.push({ assetNo, allocatedTo, userMail, department, assetType, location, manufacturer, model, serial, systemName, remarks });
+                                // Prevent duplicates
+                                if (!assetMasterList.some(a => a.assetNo.toLowerCase() === assetNo.toLowerCase())) {
+                                    assetMasterList.push({ assetNo, allocatedTo, userMail, department, assetType, location, manufacturer, model, serial, systemName, remarks });
+                                }
                                 if (location !== '' && !locationsList.includes(location)) {
                                     locationsList.push(location);
                                 }
@@ -1851,10 +1939,10 @@
                     const statusBox = document.getElementById('upload-status');
                     if (statusBox) {
                         document.getElementById('upload-status-text').innerText = `Imported: "${file.name}" successfully!`;
-                        document.getElementById('asset-count-badge').innerText = `${assetMasterList.length} Assets Registered`;
+                        document.getElementById('asset-count-badge').innerText = `${assetMasterList.length} Total Assets Registered`;
                         statusBox.classList.remove('hidden');
                     }
-                    showToast(`${assetMasterList.length} assets imported from ${file.name}.`);
+                    showToast(`${assetMasterList.length} total assets stored permanently.`);
                 };
                 reader.readAsText(file);
             }
@@ -1889,7 +1977,7 @@
             link.click();
             document.body.removeChild(link);
             URL.revokeObjectURL(url);
-            showToast(`Report downloaded (${filtered.length} records).`);
+            showToast(`Audit report downloaded (${filtered.length} permanent records).`);
         }
 
         function openModal(id) { 
