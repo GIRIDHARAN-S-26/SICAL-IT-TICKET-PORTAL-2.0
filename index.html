@@ -152,6 +152,7 @@
      <button onclick="switchTab('dashboard')" id="btn-dashboard" class="w-full flex items-center space-x-3 px-4 py-3 rounded-lg bg-slate-800 text-white font-medium text-sm transition whitespace-nowrap"> <i class="fa-solid fa-chart-pie w-5 text-red-500"></i> <span>Dashboard</span> </button> 
      <button onclick="switchTab('ticket-system')" id="btn-ticket-system" class="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-slate-400 hover:bg-slate-800 font-medium text-sm transition whitespace-nowrap"> <i class="fa-solid fa-ticket w-5 text-red-500"></i> <span>Ticket System</span> </button> 
      <button onclick="switchTab('asset-register')" id="btn-asset-register" class="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-slate-400 hover:bg-slate-800 font-medium text-sm transition whitespace-nowrap"> <i class="fa-solid fa-laptop w-5 text-red-500"></i> <span>Asset Register</span> </button> 
+     <button onclick="switchTab('asset-history')" id="btn-asset-history" class="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-slate-400 hover:bg-slate-800 font-medium text-sm transition whitespace-nowrap"> <i class="fa-solid fa-clock-rotate-left w-5 text-red-500"></i> <span>Asset History</span> </button> 
      <button onclick="switchTab('reports')" id="btn-reports" class="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-slate-400 hover:bg-slate-800 font-medium text-sm transition whitespace-nowrap"> <i class="fa-solid fa-file-excel w-5 text-red-500"></i> <span>Reports</span> </button> 
      <button onclick="switchTab('setup')" id="btn-setup" class="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-slate-400 hover:bg-slate-800 font-medium text-sm transition whitespace-nowrap"> <i class="fa-solid fa-sliders w-5 text-red-500"></i> <span>Setup &amp; Access</span> </button>
     </nav>
@@ -306,7 +307,7 @@
            <th class="p-4 bg-slate-50">Ticket ID</th>
            <th class="p-4 bg-slate-50">Location</th>
            <th class="p-4 bg-slate-50">Category</th>
-           <th class="p-4 bg-slate-50">Asset Tag</th>
+           <th class="p-4 bg-slate-50">Asset TAG</th>
            <th class="p-4 bg-slate-50">Allocated User &amp; Dept</th>
            <th class="p-4 bg-slate-50">Raised By (User)</th>
            <th class="p-4 bg-slate-50">Device Specs</th>
@@ -337,8 +338,17 @@
      <section id="tab-asset-register" class="hidden space-y-6 animate-fade-in">
       <div class="flex flex-wrap justify-between items-center gap-3">
        <h3 class="text-lg font-bold text-slate-800">Master Asset Register &amp; Hardware Specs</h3>
-       <div class="flex items-center space-x-2">
-        <input type="text" id="asset-directory-search" placeholder="Search assets..." oninput="renderAssetDirectoryTable()" class="border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none w-52"> 
+       <div class="flex flex-wrap items-center gap-2">
+        <!-- Location Filter -->
+        <select id="asset-location-filter" onchange="renderAssetDirectoryTable()" class="border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-red-500">
+         <option value="">All Locations</option>
+        </select>
+        <!-- Search Input -->
+        <input type="text" id="asset-directory-search" placeholder="Search assets..." oninput="renderAssetDirectoryTable()" class="border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none w-44"> 
+        <!-- Custom Export Button -->
+        <button onclick="openModal('export-asset-modal')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold px-4 py-2 rounded-lg shadow-sm flex items-center space-x-2">
+         <i class="fa-solid fa-file-excel"></i> <span>Export Asset Report</span>
+        </button>
        </div>
       </div>
       <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
@@ -346,17 +356,51 @@
         <table class="w-full text-left text-sm text-slate-600">
          <thead class="bg-slate-50 text-slate-700 font-bold uppercase text-[11px] border-b border-slate-200 sticky top-0 z-10">
           <tr>
-           <th class="p-3 bg-slate-50">Asset Tag</th>
+           <th class="p-3 bg-slate-50">Asset TAG</th>
+           <th class="p-3 bg-slate-50">Asset Number</th>
+           <th class="p-3 bg-slate-50">Asset Type</th>
            <th class="p-3 bg-slate-50">Allocated User &amp; Dept</th>
            <th class="p-3 bg-slate-50">Location</th>
-           <th class="p-3 bg-slate-50">Type &amp; Model</th>
+           <th class="p-3 bg-slate-50">Manufacturer &amp; Model</th>
            <th class="p-3 bg-slate-50">Processor &amp; RAM</th>
-           <th class="p-3 bg-slate-50">Storage &amp; OS</th>
-           <th class="p-3 bg-slate-50">Security / USB</th>
            <th class="p-3 bg-slate-50 text-right">Actions</th>
           </tr>
          </thead>
          <tbody id="asset-directory-table-body" class="divide-y divide-slate-100 font-medium text-xs">
+         </tbody>
+        </table>
+       </div>
+      </div>
+     </section>
+
+     <!-- ========================================== -->
+     <!-- TAB 2.6: ASSET HISTORY / AUDIT TRAIL       -->
+     <!-- ========================================== -->
+     <section id="tab-asset-history" class="hidden space-y-6 animate-fade-in">
+      <div class="flex flex-wrap justify-between items-center gap-3">
+       <div>
+        <h3 class="text-lg font-bold text-slate-800">Asset Assignment History &amp; Audit Trail</h3>
+        <p class="text-xs text-slate-500">Track complete lifecycle history of asset reassignments from previous users to current owners.</p>
+       </div>
+       <div class="flex items-center space-x-2">
+        <input type="text" id="asset-history-search" placeholder="Search Asset TAG or User..." oninput="renderAssetHistoryTable()" class="border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none w-60"> 
+       </div>
+      </div>
+      <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+       <div class="overflow-x-auto max-h-[600px] overflow-y-auto">
+        <table class="w-full text-left text-sm text-slate-600">
+         <thead class="bg-slate-50 text-slate-700 font-bold uppercase text-[11px] border-b border-slate-200 sticky top-0 z-10">
+          <tr>
+           <th class="p-3 bg-slate-50">Asset TAG</th>
+           <th class="p-3 bg-slate-50">Asset Number</th>
+           <th class="p-3 bg-slate-50">Previous / Reassigned User</th>
+           <th class="p-3 bg-slate-50">Department</th>
+           <th class="p-3 bg-slate-50">Location</th>
+           <th class="p-3 bg-slate-50">Action / Event</th>
+           <th class="p-3 bg-slate-50">Logged Timestamp</th>
+          </tr>
+         </thead>
+         <tbody id="asset-history-table-body" class="divide-y divide-slate-100 font-medium text-xs">
          </tbody>
         </table>
        </div>
@@ -488,12 +532,12 @@
        </form>
       </div>
 
-      <!-- BULK UPLOAD ASSET REGISTER (18 COLUMNS) -->
+      <!-- BULK UPLOAD ASSET REGISTER -->
       <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
        <div class="flex justify-between items-center">
         <div>
-         <h3 class="text-lg font-bold text-slate-800">Bulk Upload SICAL Master Asset Register (18-Column Extended Layout)</h3>
-         <p class="text-xs text-slate-500 mt-0.5">Supports: <b>Asset Number, ALLOCATE TO, User Mail ID, Department, Asset Type, Location, MANUFACTURER NAME, ASSET MODEL, SERIAL NUMBER, System Name, REMARKS, MEMORY SIZE, PROCESSOR, OPERATING SYSTEM, HARD DRIVE SIZE, OS Upg. Required?, One drive, USB Access</b></p>
+         <h3 class="text-lg font-bold text-slate-800">Bulk Upload SICAL Master Asset Register</h3>
+         <p class="text-xs text-slate-500 mt-0.5">Supports: <b>Asset TAG, Asset Number, ALLOCATE TO, User Mail ID, Department, Asset Type, Location, MANUFACTURER NAME, ASSET MODEL, SERIAL NUMBER, System Name, REMARKS, MEMORY SIZE, PROCESSOR, OPERATING SYSTEM, HARD DRIVE SIZE, OS Upg. Required?, One drive, USB Access</b></p>
         </div>
         <button onclick="downloadCSVTemplate()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 font-bold px-3 py-1.5 rounded flex items-center space-x-1"> <i class="fa-solid fa-download"></i> <span>Download Format Template</span> </button>
        </div>
@@ -511,54 +555,64 @@
        </div>
       </div>
 
-      <!-- NEW MANUAL ASSET ENTRY FORM (EXTENDED 18 COLUMNS) -->
+      <!-- NEW MANUAL ASSET ENTRY FORM -->
       <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
        <h3 class="text-lg font-bold text-slate-800 border-b border-slate-100 pb-2">Add New Single Asset Manually (Full Specs)</h3>
        <form onsubmit="handleManualAssetSubmit(event)" class="space-y-4">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
          <div>
+          <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Asset TAG</label>
+          <input type="text" id="manual-asset-tag" placeholder="e.g. HQC/IT/SMTL/001D" required class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-red-500 font-mono">
+         </div>
+         <div>
           <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Asset Number</label>
-          <input type="text" id="manual-asset-no" placeholder="e.g. SICAL/LT/800" required class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-red-500">
+          <input type="text" id="manual-asset-no" placeholder="e.g. SICAL/DT/0402" required class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-red-500 font-mono">
          </div>
          <div>
           <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Allocate To (Name)</label>
           <input type="text" id="manual-allocated-to" placeholder="e.g. John Doe" required class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-red-500">
          </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
          <div>
           <label class="block text-xs font-bold text-slate-600 uppercase mb-1">User Mail ID</label>
           <input type="email" id="manual-user-mail" placeholder="john@sical.com" required class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-red-500">
          </div>
-        </div>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
          <div>
           <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Department</label>
           <input type="text" id="manual-department" placeholder="e.g. IT / SMART-CFS" required class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-red-500">
          </div>
          <div>
-          <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Asset Type</label>
-          <input type="text" id="manual-asset-type" placeholder="e.g. LAPTOP" required class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-red-500">
+          <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Asset Type (Lookup)</label>
+          <select id="manual-asset-type" required class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-red-500"></select>
          </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
          <div>
           <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Location</label>
           <select id="manual-location" required class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-red-500"></select>
          </div>
-        </div>
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
          <div>
           <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Manufacturer</label>
           <input type="text" id="manual-manufacturer" placeholder="e.g. LENOVO" required class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-red-500">
          </div>
          <div>
           <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Asset Model</label>
-          <input type="text" id="manual-model" placeholder="e.g. ThinkPad E14" required class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-red-500">
+          <input type="text" id="manual-model" placeholder="e.g. ThinkCentre" required class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-red-500">
          </div>
          <div>
           <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Serial Number</label>
           <input type="text" id="manual-serial" placeholder="e.g. PF04TQDN" required class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-red-500">
          </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
          <div>
           <label class="block text-xs font-bold text-slate-600 uppercase mb-1">System Name</label>
           <input type="text" id="manual-system-name" placeholder="e.g. SICLT800" required class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-red-500">
+         </div>
+         <div>
+          <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Remarks</label>
+          <input type="text" id="manual-remarks" placeholder="Any additional notes..." class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-red-500">
          </div>
         </div>
         <!-- TECHNICAL SPECS FIELDS -->
@@ -603,20 +657,18 @@
           </select>
          </div>
         </div>
-        <div>
-         <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Remarks</label>
-         <input type="text" id="manual-remarks" placeholder="Any additional notes..." class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-red-500">
-        </div>
         <button type="submit" class="bg-red-600 hover:bg-red-700 text-white text-sm font-bold px-5 py-2.5 rounded-lg shadow-sm">Save Asset to Permanent Register</button>
        </form>
       </div>
 
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <!-- MASTER SETTINGS GRIDS -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+       <!-- Location Master -->
        <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
-        <h3 class="text-lg font-bold text-slate-800 border-b border-slate-100 pb-2">Location Master Settings</h3>
+        <h3 class="text-lg font-bold text-slate-800 border-b border-slate-100 pb-2">Location Master</h3>
         <form onsubmit="handleAddLocation(event)" class="flex space-x-2">
-         <input type="text" id="new-location-input" placeholder="e.g. CHENNAI-RAJAH SALAI" required class="flex-1 border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-red-500"> 
-         <button type="submit" class="bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-4 py-2 rounded-lg shadow-sm">Add Location</button>
+         <input type="text" id="new-location-input" placeholder="e.g. CHENNAI" required class="flex-1 border border-slate-300 rounded-lg p-2 text-xs focus:ring-2 focus:ring-red-500"> 
+         <button type="submit" class="bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-3 py-2 rounded-lg shadow-sm">Add</button>
         </form>
         <div class="overflow-y-auto max-h-48 border border-slate-200 rounded-lg">
          <table class="w-full text-left text-sm text-slate-600">
@@ -626,17 +678,39 @@
             <th class="p-2 text-right">Action</th>
            </tr>
           </thead>
-          <tbody id="location-master-table-body" class="divide-y divide-slate-100 font-medium">
+          <tbody id="location-master-table-body" class="divide-y divide-slate-100 font-medium text-xs">
           </tbody>
          </table>
         </div>
        </div>
 
+       <!-- Asset Type Master Settings -->
        <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
-        <h3 class="text-lg font-bold text-slate-800 border-b border-slate-100 pb-2">Role Assignment Master</h3>
+        <h3 class="text-lg font-bold text-slate-800 border-b border-slate-100 pb-2">Asset Type Master</h3>
+        <form onsubmit="handleAddAssetType(event)" class="flex space-x-2">
+         <input type="text" id="new-asset-type-input" placeholder="e.g. LAPTOP" required class="flex-1 border border-slate-300 rounded-lg p-2 text-xs focus:ring-2 focus:ring-red-500"> 
+         <button type="submit" class="bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-3 py-2 rounded-lg shadow-sm">Add</button>
+        </form>
+        <div class="overflow-y-auto max-h-48 border border-slate-200 rounded-lg">
+         <table class="w-full text-left text-sm text-slate-600">
+          <thead class="bg-slate-50 text-slate-700 font-bold uppercase text-[10px]">
+           <tr>
+            <th class="p-2">Asset Type</th>
+            <th class="p-2 text-right">Action</th>
+           </tr>
+          </thead>
+          <tbody id="asset-type-master-table-body" class="divide-y divide-slate-100 font-medium text-xs">
+          </tbody>
+         </table>
+        </div>
+       </div>
+
+       <!-- Role Assignment Master -->
+       <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
+        <h3 class="text-lg font-bold text-slate-800 border-b border-slate-100 pb-2">Role Assignment</h3>
         <form onsubmit="handleAddRole(event)" class="flex space-x-2">
-         <input type="text" id="new-role-input" placeholder="e.g. Systems Engineer" required class="flex-1 border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-red-500"> 
-         <button type="submit" class="bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold px-4 py-2 rounded-lg shadow-sm">Add Role</button>
+         <input type="text" id="new-role-input" placeholder="e.g. Engineer" required class="flex-1 border border-slate-300 rounded-lg p-2 text-xs focus:ring-2 focus:ring-red-500"> 
+         <button type="submit" class="bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold px-3 py-2 rounded-lg shadow-sm">Add</button>
         </form>
         <div class="overflow-y-auto max-h-48 border border-slate-200 rounded-lg">
          <table class="w-full text-left text-sm text-slate-600">
@@ -646,7 +720,7 @@
             <th class="p-2 text-right">Action</th>
            </tr>
           </thead>
-          <tbody id="role-master-table-body" class="divide-y divide-slate-100 font-medium">
+          <tbody id="role-master-table-body" class="divide-y divide-slate-100 font-medium text-xs">
           </tbody>
          </table>
         </div>
@@ -686,10 +760,11 @@
         </div>
         <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
          <label class="block text-xs font-bold text-slate-700 uppercase mb-2">Assign Menu Access Permissions</label>
-         <div class="grid grid-cols-2 md:grid-cols-5 gap-3 text-xs font-semibold text-slate-700">
+         <div class="grid grid-cols-2 md:grid-cols-6 gap-3 text-xs font-semibold text-slate-700">
           <label class="flex items-center space-x-2 cursor-pointer"> <input type="checkbox" id="perm-dashboard" checked class="rounded text-red-600 focus:ring-red-500 w-4 h-4"> <span>Dashboard</span> </label> 
           <label class="flex items-center space-x-2 cursor-pointer"> <input type="checkbox" id="perm-ticket" checked class="rounded text-red-600 focus:ring-red-500 w-4 h-4"> <span>Raise Ticket</span> </label> 
           <label class="flex items-center space-x-2 cursor-pointer"> <input type="checkbox" id="perm-asset" checked class="rounded text-red-600 focus:ring-red-500 w-4 h-4"> <span>Asset Register</span> </label> 
+          <label class="flex items-center space-x-2 cursor-pointer"> <input type="checkbox" id="perm-history" checked class="rounded text-red-600 focus:ring-red-500 w-4 h-4"> <span>Asset History</span> </label> 
           <label class="flex items-center space-x-2 cursor-pointer"> <input type="checkbox" id="perm-reports" checked class="rounded text-red-600 focus:ring-red-500 w-4 h-4"> <span>Reports Download</span> </label> 
           <label class="flex items-center space-x-2 cursor-pointer"> <input type="checkbox" id="perm-setup" class="rounded text-red-600 focus:ring-red-500 w-4 h-4"> <span>Setup Menu</span> </label>
          </div>
@@ -724,8 +799,53 @@
   </div>
 
   <!-- ========================================== -->
-  <!-- FEEDBACK SURVEY MODAL                      -->
+  <!-- EXPORT ASSET REPORT MODAL                  -->
   <!-- ========================================== -->
+  <div id="export-asset-modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex justify-center items-center p-4 z-50">
+   <div class="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden border border-slate-200">
+    <div class="bg-slate-900 text-white p-4 flex justify-between items-center">
+     <h3 class="font-bold text-sm uppercase tracking-wider"><i class="fa-solid fa-file-excel text-emerald-400 mr-2"></i>Custom Asset Report Export</h3>
+     <button onclick="closeModal('export-asset-modal')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+    </div>
+    <div class="p-6 space-y-4">
+     <div>
+      <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Filter by Location</label>
+      <select id="export-asset-location" class="w-full border border-slate-300 rounded-lg p-2 text-sm">
+       <option value="">All Locations</option>
+      </select>
+     </div>
+     <div>
+      <label class="block text-xs font-bold text-slate-700 uppercase mb-2">Select Columns to Export</label>
+      <div class="grid grid-cols-2 gap-2 text-xs font-semibold text-slate-700 bg-slate-50 p-3 rounded-lg border border-slate-200 max-h-48 overflow-y-auto">
+       <label class="flex items-center space-x-2 cursor-pointer"><input type="checkbox" value="assetTag" checked class="asset-col-chk"> <span>Asset TAG</span></label>
+       <label class="flex items-center space-x-2 cursor-pointer"><input type="checkbox" value="assetNo" checked class="asset-col-chk"> <span>Asset Number</span></label>
+       <label class="flex items-center space-x-2 cursor-pointer"><input type="checkbox" value="assetType" checked class="asset-col-chk"> <span>Asset Type</span></label>
+       <label class="flex items-center space-x-2 cursor-pointer"><input type="checkbox" value="allocatedTo" checked class="asset-col-chk"> <span>Allocated To</span></label>
+       <label class="flex items-center space-x-2 cursor-pointer"><input type="checkbox" value="userMail" checked class="asset-col-chk"> <span>User Mail ID</span></label>
+       <label class="flex items-center space-x-2 cursor-pointer"><input type="checkbox" value="department" checked class="asset-col-chk"> <span>Department</span></label>
+       <label class="flex items-center space-x-2 cursor-pointer"><input type="checkbox" value="location" checked class="asset-col-chk"> <span>Location</span></label>
+       <label class="flex items-center space-x-2 cursor-pointer"><input type="checkbox" value="manufacturer" checked class="asset-col-chk"> <span>Manufacturer</span></label>
+       <label class="flex items-center space-x-2 cursor-pointer"><input type="checkbox" value="model" checked class="asset-col-chk"> <span>Asset Model</span></label>
+       <label class="flex items-center space-x-2 cursor-pointer"><input type="checkbox" value="serial" checked class="asset-col-chk"> <span>Serial Number</span></label>
+       <label class="flex items-center space-x-2 cursor-pointer"><input type="checkbox" value="systemName" checked class="asset-col-chk"> <span>System Name</span></label>
+       <label class="flex items-center space-x-2 cursor-pointer"><input type="checkbox" value="memory" checked class="asset-col-chk"> <span>Memory Size</span></label>
+       <label class="flex items-center space-x-2 cursor-pointer"><input type="checkbox" value="processor" checked class="asset-col-chk"> <span>Processor</span></label>
+       <label class="flex items-center space-x-2 cursor-pointer"><input type="checkbox" value="os" checked class="asset-col-chk"> <span>Operating System</span></label>
+       <label class="flex items-center space-x-2 cursor-pointer"><input type="checkbox" value="hdd" checked class="asset-col-chk"> <span>Hard Drive Size</span></label>
+       <label class="flex items-center space-x-2 cursor-pointer"><input type="checkbox" value="osUpg" checked class="asset-col-chk"> <span>OS Upg. Required?</span></label>
+       <label class="flex items-center space-x-2 cursor-pointer"><input type="checkbox" value="onedrive" checked class="asset-col-chk"> <span>One drive</span></label>
+       <label class="flex items-center space-x-2 cursor-pointer"><input type="checkbox" value="usb" checked class="asset-col-chk"> <span>USB Access</span></label>
+      </div>
+     </div>
+     <div class="flex justify-end space-x-3 pt-2">
+      <button type="button" onclick="closeModal('export-asset-modal')" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-bold rounded-lg">Cancel</button> 
+      <button type="button" onclick="executeCustomAssetExport()" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold rounded-lg shadow-sm">Download Selected Report</button>
+     </div>
+    </div>
+   </div>
+  </div>
+
+  <!-- FEEDBACK SURVEY MODAL -->
   <div id="survey-modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex justify-center items-center p-4 z-50">
    <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg overflow-hidden border border-slate-200">
     <div class="bg-slate-900 text-white p-4 flex justify-between items-center">
@@ -791,6 +911,7 @@
        <label class="flex items-center space-x-2 cursor-pointer"> <input type="checkbox" id="edit-perm-dashboard" class="rounded text-red-600 focus:ring-red-500 w-4 h-4"> <span>Dashboard Access</span> </label> 
        <label class="flex items-center space-x-2 cursor-pointer"> <input type="checkbox" id="edit-perm-ticket" class="rounded text-red-600 focus:ring-red-500 w-4 h-4"> <span>Ticket System Access</span> </label> 
        <label class="flex items-center space-x-2 cursor-pointer"> <input type="checkbox" id="edit-perm-asset" class="rounded text-red-600 focus:ring-red-500 w-4 h-4"> <span>Asset Register Access</span> </label> 
+       <label class="flex items-center space-x-2 cursor-pointer"> <input type="checkbox" id="edit-perm-history" class="rounded text-red-600 focus:ring-red-500 w-4 h-4"> <span>Asset History Access</span> </label> 
        <label class="flex items-center space-x-2 cursor-pointer"> <input type="checkbox" id="edit-perm-reports" class="rounded text-red-600 focus:ring-red-500 w-4 h-4"> <span>Reports Download Access</span> </label> 
        <label class="flex items-center space-x-2 cursor-pointer"> <input type="checkbox" id="edit-perm-setup" class="rounded text-red-600 focus:ring-red-500 w-4 h-4"> <span>Setup Menu Access</span> </label>
       </div>
@@ -811,10 +932,16 @@
      <button onclick="closeModal('edit-asset-modal')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
     </div>
     <form onsubmit="handleSaveAssetEdit(event)" class="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
-     <input type="hidden" id="edit-asset-tag">
-     <div>
-      <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Asset Number (ID)</label> 
-      <input type="text" id="edit-asset-no-display" disabled class="w-full border border-slate-200 bg-slate-100 rounded-lg p-2 text-sm text-slate-500 font-bold font-mono">
+     <input type="hidden" id="edit-asset-tag-id">
+     <div class="grid grid-cols-2 gap-4">
+      <div>
+       <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Asset TAG</label> 
+       <input type="text" id="edit-asset-tag" required class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-red-500 font-mono">
+      </div>
+      <div>
+       <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Asset Number</label> 
+       <input type="text" id="edit-asset-no" required class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-red-500 font-mono">
+      </div>
      </div>
      <div class="grid grid-cols-2 gap-4">
       <div>
@@ -853,8 +980,8 @@
     </div>
     <form onsubmit="handleTicketSubmit(event)" class="p-6 space-y-4 overflow-y-auto flex-1">
      <div>
-      <label class="block text-xs font-bold text-slate-700 uppercase mb-1"> <i class="fa-solid fa-magnifying-glass text-red-600 mr-1"></i> Search Employee Name or Asset Tag (Auto-Fill) </label> 
-      <input type="text" id="asset-search-input" list="asset-datalist" placeholder="Type Asset Tag or Name..." oninput="handleAssetSearchSelect(this.value)" class="w-full border-2 border-amber-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-red-500 bg-amber-50/50 font-medium"> 
+      <label class="block text-xs font-bold text-slate-700 uppercase mb-1"> <i class="fa-solid fa-magnifying-glass text-red-600 mr-1"></i> Search Employee Name or Asset TAG (Auto-Fill) </label> 
+      <input type="text" id="asset-search-input" list="asset-datalist" placeholder="Type Asset TAG or Name..." oninput="handleAssetSearchSelect(this.value)" class="w-full border-2 border-amber-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-red-500 bg-amber-50/50 font-medium"> 
       <datalist id="asset-datalist"></datalist>
       <p class="text-[11px] text-slate-400 mt-1">Start typing to search existing master records, or manually enter details below.</p>
      </div>
@@ -874,8 +1001,8 @@
        <select id="ticket-location" required class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-red-500"></select>
       </div>
       <div>
-       <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Asset Tag / Number</label> 
-       <input type="text" id="ticket-asset" placeholder="e.g. SICAL/LT/793" required class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-red-500">
+       <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Asset TAG</label> 
+       <input type="text" id="ticket-asset" placeholder="e.g. HQC/IT/SMTL/001D" required class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-red-500 font-mono">
       </div>
      </div>
      <div class="grid grid-cols-3 gap-2 bg-slate-50 p-2.5 rounded-lg border border-slate-200 text-xs">
@@ -948,11 +1075,15 @@
             location: "CHENNAI-RAJAH SALAI", 
             role: "IT Admin / Support Agent", 
             active: true,
-            perms: { dashboard: true, ticket: true, asset: true, reports: true, setup: true } 
+            perms: { dashboard: true, ticket: true, asset: true, history: true, reports: true, setup: true } 
         };
 
         const DEFAULT_LOCATIONS = [
             "MIGAHI", "CHENNAI-RAJAH SALAI", "TUTICORIN-SMARTCFS", "BANGALORE-CORPORATE OFFICE", "CHENNAI-MINJUR", "VIZAG-GAJUWAKA", "CHENNAI-SIH"
+        ];
+
+        const DEFAULT_ASSET_TYPES = [
+            "LAPTOP", "DESKTOP", "PRINTER", "SERVER", "SWITCH", "ROUTER", "CCTV", "BARCODE SCANNER"
         ];
 
         const DEFAULT_ROLES = [
@@ -965,7 +1096,6 @@
             if (stored) {
                 try {
                     let parsed = JSON.parse(stored);
-                    // Ensure default admin always present
                     if (!parsed.some(u => u.username === DEFAULT_ADMIN.username)) {
                         parsed.unshift(DEFAULT_ADMIN);
                     }
@@ -987,6 +1117,14 @@
         }
         function saveLocations() { localStorage.setItem('sical_locations', JSON.stringify(locationsList)); }
 
+        function loadAssetTypes() {
+            const stored = localStorage.getItem('sical_asset_types');
+            if (stored) return JSON.parse(stored);
+            localStorage.setItem('sical_asset_types', JSON.stringify(DEFAULT_ASSET_TYPES));
+            return DEFAULT_ASSET_TYPES;
+        }
+        function saveAssetTypes() { localStorage.setItem('sical_asset_types', JSON.stringify(assetTypesList)); }
+
         function loadRoles() {
             const stored = localStorage.getItem('sical_roles');
             if (stored) return JSON.parse(stored);
@@ -1007,6 +1145,12 @@
         }
         function saveAssets() { localStorage.setItem('sical_assets', JSON.stringify(assetMasterList)); }
 
+        function loadAssetHistory() {
+            const stored = localStorage.getItem('sical_asset_history');
+            return stored ? JSON.parse(stored) : [];
+        }
+        function saveAssetHistory() { localStorage.setItem('sical_asset_history', JSON.stringify(assetHistoryList)); }
+
         function loadNotifications() {
             const stored = localStorage.getItem('sical_notifications');
             return stored ? JSON.parse(stored) : [];
@@ -1016,9 +1160,11 @@
         // MASTER STATE
         let usersList = loadUsers();
         let locationsList = loadLocations();
+        let assetTypesList = loadAssetTypes();
         let rolesList = loadRoles();
         let ticketsList = loadTickets();
         let assetMasterList = loadAssets();
+        let assetHistoryList = loadAssetHistory();
         let notifications = loadNotifications();
         let priorityChartInstance = null;
         let categoryChartInstance = null;
@@ -1207,15 +1353,17 @@
 
         function applyUserPermissions() {
             if (!currentUser) return;
-            const p = currentUser.perms || { dashboard: true, ticket: true, asset: true, reports: true, setup: true };
+            const p = currentUser.perms || { dashboard: true, ticket: true, asset: true, history: true, reports: true, setup: true };
             toggleMenuBtn('btn-dashboard', p.dashboard);
             toggleMenuBtn('btn-ticket-system', p.ticket);
             toggleMenuBtn('btn-asset-register', p.asset);
+            toggleMenuBtn('btn-asset-history', p.history);
             toggleMenuBtn('btn-reports', p.reports);
             toggleMenuBtn('btn-setup', p.setup);
             if (p.dashboard) switchTab('dashboard');
             else if (p.ticket) switchTab('ticket-system');
             else if (p.asset) switchTab('asset-register');
+            else if (p.history) switchTab('asset-history');
             else if (p.reports) switchTab('reports');
             else if (p.setup) switchTab('setup');
         }
@@ -1230,11 +1378,14 @@
 
         function initApp() {
             renderLocationDropdowns();
+            renderAssetTypeDropdowns();
             renderRoleDropdowns();
             renderLocationMasterTable();
+            renderAssetTypeMasterTable();
             renderRoleMasterTable();
             renderTicketTable();
             renderAssetDirectoryTable();
+            renderAssetHistoryTable();
             renderUsersTable();
             populateUserDropdown();
             updateMetricsAndCharts();
@@ -1243,7 +1394,7 @@
         }
 
         function switchTab(tabId) {
-            const tabs = ['dashboard', 'ticket-system', 'asset-register', 'reports', 'setup'];
+            const tabs = ['dashboard', 'ticket-system', 'asset-register', 'asset-history', 'reports', 'setup'];
             tabs.forEach(t => {
                 const el = document.getElementById(`tab-${t}`);
                 if (el) el.classList.add('hidden');
@@ -1264,6 +1415,7 @@
                 'dashboard': 'Dashboard Metrics',
                 'ticket-system': 'Ticket Management System',
                 'asset-register': 'Master Asset Register Directory',
+                'asset-history': 'Asset Assignment History & Audit Trail',
                 'reports': 'Reports & Exports',
                 'setup': 'System Access & Master Data Directory'
             };
@@ -1274,19 +1426,27 @@
                 renderReportPreview();
             } else if (tabId === 'asset-register') {
                 renderAssetDirectoryTable();
+            } else if (tabId === 'asset-history') {
+                renderAssetHistoryTable();
             }
         }
 
         // DROPDOWNS
         function renderLocationDropdowns() {
-            const dropdownIds = ['new-user-location', 'ticket-location', 'report-location-filter', 'manual-location'];
+            const dropdownIds = ['new-user-location', 'ticket-location', 'report-location-filter', 'manual-location', 'asset-location-filter', 'export-asset-location'];
             dropdownIds.forEach(id => {
                 const el = document.getElementById(id);
                 if (!el) return;
-                let html = (id === 'report-location-filter') ? '<option value="">All Locations</option>' : '<option value="">Select Location</option>';
+                let html = (id === 'report-location-filter' || id === 'asset-location-filter' || id === 'export-asset-location') ? '<option value="">All Locations</option>' : '<option value="">Select Location</option>';
                 locationsList.forEach(loc => { html += `<option value="${loc}">${loc}</option>`; });
                 el.innerHTML = html;
             });
+        }
+
+        function renderAssetTypeDropdowns() {
+            const el = document.getElementById('manual-asset-type');
+            if (!el) return;
+            el.innerHTML = '<option value="">Select Asset Type</option>' + assetTypesList.map(t => `<option value="${t}">${t}</option>`).join('');
         }
 
         function renderRoleDropdowns() {
@@ -1365,6 +1525,78 @@
             renderLocationDropdowns();
             renderLocationMasterTable();
             showToast(`Location "${name}" deleted.`);
+        }
+
+        // ASSET TYPE MASTER SETTINGS
+        function renderAssetTypeMasterTable() {
+            const tbody = document.getElementById('asset-type-master-table-body');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+            assetTypesList.forEach((type, index) => {
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50">
+                        <td class="p-2 font-semibold text-slate-700">${type}</td>
+                        <td class="p-2 text-right space-x-1">
+                            <button onclick="editAssetTypeInline(${index}, this)" class="text-xs text-blue-600 hover:underline font-bold">Edit</button>
+                            <button onclick="requestDeleteAssetType(${index}, this)" class="text-xs text-red-600 hover:underline font-bold">Delete</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function handleAddAssetType(e) {
+            e.preventDefault();
+            const input = document.getElementById('new-asset-type-input');
+            const val = input.value.trim().toUpperCase();
+            if (val && !assetTypesList.includes(val)) {
+                assetTypesList.push(val);
+                saveAssetTypes();
+                renderAssetTypeDropdowns();
+                renderAssetTypeMasterTable();
+                input.value = '';
+                showToast(`Asset Type "${val}" added.`);
+            } else {
+                showToast('Asset Type already exists or empty.', 'error');
+            }
+        }
+
+        function editAssetTypeInline(index, btn) {
+            const tr = btn.closest('tr');
+            const td = tr.querySelector('td:first-child');
+            const oldVal = assetTypesList[index];
+            td.innerHTML = `<input type="text" value="${oldVal}" class="border border-slate-300 rounded p-1 text-xs w-full" id="asset-type-edit-${index}">`;
+            btn.textContent = 'Save';
+            btn.onclick = function() {
+                const newVal = document.getElementById(`asset-type-edit-${index}`).value.trim().toUpperCase();
+                if (newVal) {
+                    assetTypesList[index] = newVal;
+                    saveAssetTypes();
+                    renderAssetTypeDropdowns();
+                    renderAssetTypeMasterTable();
+                    showToast('Asset Type updated.');
+                }
+            };
+        }
+
+        function requestDeleteAssetType(index, btn) {
+            const tr = btn.closest('tr');
+            const existing = tr.querySelector('.confirm-row');
+            if (existing) { existing.remove(); btn.textContent = 'Delete'; return; }
+            btn.textContent = 'Cancel';
+            const confirmSpan = document.createElement('span');
+            confirmSpan.className = 'confirm-row active items-center space-x-1 ml-1';
+            confirmSpan.innerHTML = `<button class="text-xs bg-red-600 text-white px-2 py-0.5 rounded font-bold" onclick="deleteAssetType(${index})">Confirm</button>`;
+            btn.insertAdjacentElement('afterend', confirmSpan);
+        }
+
+        function deleteAssetType(index) {
+            const name = assetTypesList[index];
+            assetTypesList.splice(index, 1);
+            saveAssetTypes();
+            renderAssetTypeDropdowns();
+            renderAssetTypeMasterTable();
+            showToast(`Asset Type "${name}" deleted.`);
         }
 
         // ROLE MASTER
@@ -1452,6 +1684,7 @@
                 dashboard: document.getElementById('perm-dashboard').checked,
                 ticket: document.getElementById('perm-ticket').checked,
                 asset: document.getElementById('perm-asset').checked,
+                history: document.getElementById('perm-history').checked,
                 reports: document.getElementById('perm-reports').checked,
                 setup: document.getElementById('perm-setup').checked
             };
@@ -1476,6 +1709,7 @@
                 if (u.perms.dashboard) permTags += '<span class="bg-blue-50 text-blue-700 text-[10px] px-1.5 py-0.5 rounded mr-1">Dash</span>';
                 if (u.perms.ticket) permTags += '<span class="bg-amber-50 text-amber-700 text-[10px] px-1.5 py-0.5 rounded mr-1">Ticket</span>';
                 if (u.perms.asset) permTags += '<span class="bg-indigo-50 text-indigo-700 text-[10px] px-1.5 py-0.5 rounded mr-1">Asset</span>';
+                if (u.perms.history) permTags += '<span class="bg-cyan-50 text-cyan-700 text-[10px] px-1.5 py-0.5 rounded mr-1">History</span>';
                 if (u.perms.reports) permTags += '<span class="bg-emerald-50 text-emerald-700 text-[10px] px-1.5 py-0.5 rounded mr-1">Reports</span>';
                 if (u.perms.setup) permTags += '<span class="bg-purple-50 text-purple-700 text-[10px] px-1.5 py-0.5 rounded mr-1">Setup</span>';
                 const statusBadge = u.active 
@@ -1543,6 +1777,7 @@
             document.getElementById('edit-perm-dashboard').checked = u.perms.dashboard;
             document.getElementById('edit-perm-ticket').checked = u.perms.ticket;
             document.getElementById('edit-perm-asset').checked = u.perms.asset;
+            document.getElementById('edit-perm-history').checked = u.perms.history;
             document.getElementById('edit-perm-reports').checked = u.perms.reports;
             document.getElementById('edit-perm-setup').checked = u.perms.setup;
             openModal('edit-user-modal');
@@ -1557,6 +1792,7 @@
                 dashboard: document.getElementById('edit-perm-dashboard').checked,
                 ticket: document.getElementById('edit-perm-ticket').checked,
                 asset: document.getElementById('edit-perm-asset').checked,
+                history: document.getElementById('edit-perm-history').checked,
                 reports: document.getElementById('edit-perm-reports').checked,
                 setup: document.getElementById('edit-perm-setup').checked
             };
@@ -1576,14 +1812,15 @@
             showToast('SMTP Configuration Saved Successfully!');
         }
 
-        // MANUAL ASSET SUBMIT (18 COLUMNS)
+        // MANUAL ASSET SUBMIT
         function handleManualAssetSubmit(e) {
             e.preventDefault();
+            const assetTag = document.getElementById('manual-asset-tag').value.trim();
             const assetNo = document.getElementById('manual-asset-no').value.trim();
             const allocatedTo = document.getElementById('manual-allocated-to').value.trim();
             const userMail = document.getElementById('manual-user-mail').value.trim();
             const department = document.getElementById('manual-department').value.trim();
-            const assetType = document.getElementById('manual-asset-type').value.trim();
+            const assetType = document.getElementById('manual-asset-type').value;
             const location = document.getElementById('manual-location').value.trim().toUpperCase();
             const manufacturer = document.getElementById('manual-manufacturer').value.trim();
             const model = document.getElementById('manual-model').value.trim();
@@ -1591,7 +1828,6 @@
             const systemName = document.getElementById('manual-system-name').value.trim();
             const remarks = document.getElementById('manual-remarks').value.trim();
             
-            // New Extended Specs
             const memory = document.getElementById('manual-memory').value.trim();
             const processor = document.getElementById('manual-processor').value.trim();
             const os = document.getElementById('manual-os').value.trim();
@@ -1600,30 +1836,46 @@
             const onedrive = document.getElementById('manual-onedrive').value.trim();
             const usb = document.getElementById('manual-usb').value.trim();
 
-            if (assetMasterList.some(a => a.assetNo.toLowerCase() === assetNo.toLowerCase())) {
-                showToast(`Asset Number "${assetNo}" already exists!`, 'error');
+            if (assetMasterList.some(a => a.assetTag && a.assetTag.toLowerCase() === assetTag.toLowerCase())) {
+                showToast(`Asset TAG "${assetTag}" already exists!`, 'error');
                 return;
             }
 
-            assetMasterList.push({ 
-                assetNo, allocatedTo, userMail, department, assetType, location, 
+            const newAsset = { 
+                assetTag, assetNo, allocatedTo, userMail, department, assetType, location, 
                 manufacturer, model, serial, systemName, remarks,
                 memory, processor, os, hdd, osUpg, onedrive, usb 
-            });
+            };
+            assetMasterList.push(newAsset);
             saveAssets();
+
+            // Log history
+            assetHistoryList.unshift({
+                assetTag,
+                assetNo,
+                user: allocatedTo,
+                department,
+                location,
+                action: 'Initial Registration / Assignment',
+                timestamp: new Date().toLocaleString()
+            });
+            saveAssetHistory();
+
             populateUserDropdown();
             renderAssetDirectoryTable();
-            showToast(`Asset "${assetNo}" added permanently with full specs!`, 'success');
+            renderAssetHistoryTable();
+            showToast(`Asset TAG "${assetTag}" added permanently with full specs!`, 'success');
             e.target.reset();
         }
 
         // EDIT ASSET HANDLERS
-        function openEditAssetModal(assetNo) {
-            const asset = assetMasterList.find(a => a.assetNo === assetNo);
+        function openEditAssetModal(assetTag) {
+            const asset = assetMasterList.find(a => a.assetTag === assetTag);
             if (!asset) return;
 
-            document.getElementById('edit-asset-tag').value = asset.assetNo;
-            document.getElementById('edit-asset-no-display').value = asset.assetNo;
+            document.getElementById('edit-asset-tag-id').value = asset.assetTag;
+            document.getElementById('edit-asset-tag').value = asset.assetTag || '';
+            document.getElementById('edit-asset-no').value = asset.assetNo || '';
             document.getElementById('edit-asset-allocated').value = asset.allocatedTo || '';
             document.getElementById('edit-asset-mail').value = asset.userMail || '';
             document.getElementById('edit-asset-dept').value = asset.department || '';
@@ -1636,58 +1888,160 @@
 
         function handleSaveAssetEdit(e) {
             e.preventDefault();
-            const assetNo = document.getElementById('edit-asset-tag').value;
-            const asset = assetMasterList.find(a => a.assetNo === assetNo);
+            const oldTag = document.getElementById('edit-asset-tag-id').value;
+            const asset = assetMasterList.find(a => a.assetTag === oldTag);
             if (!asset) return;
 
-            asset.allocatedTo = document.getElementById('edit-asset-allocated').value.trim();
+            const oldUser = asset.allocatedTo;
+            const newUser = document.getElementById('edit-asset-allocated').value.trim();
+
+            asset.assetTag = document.getElementById('edit-asset-tag').value.trim();
+            asset.assetNo = document.getElementById('edit-asset-no').value.trim();
+            asset.allocatedTo = newUser;
             asset.userMail = document.getElementById('edit-asset-mail').value.trim();
             asset.department = document.getElementById('edit-asset-dept').value.trim();
             asset.location = document.getElementById('edit-asset-location').value;
 
             saveAssets();
+
+            let actionText = oldUser !== newUser ? `Reassigned from [${oldUser}] to [${newUser}]` : 'Updated Asset Details';
+            assetHistoryList.unshift({
+                assetTag: asset.assetTag,
+                assetNo: asset.assetNo,
+                user: newUser,
+                department: asset.department,
+                location: asset.location,
+                action: actionText,
+                timestamp: new Date().toLocaleString()
+            });
+            saveAssetHistory();
+
             renderAssetDirectoryTable();
+            renderAssetHistoryTable();
             populateUserDropdown();
             closeModal('edit-asset-modal');
-            showToast(`Asset "${assetNo}" updated successfully!`, 'success');
+            showToast(`Asset TAG "${asset.assetTag}" updated & history logged!`, 'success');
         }
 
-        // ASSET DIRECTORY TABLE RENDERING
+        // ASSET DIRECTORY TABLE RENDERING (LOCATION FILTER & SEARCH)
         function renderAssetDirectoryTable() {
             const search = (document.getElementById('asset-directory-search')?.value || '').toLowerCase();
+            const locFilter = document.getElementById('asset-location-filter')?.value || '';
             const tbody = document.getElementById('asset-directory-table-body');
             if (!tbody) return;
 
-            const filtered = assetMasterList.filter(a => 
-                !search || 
-                (a.assetNo && a.assetNo.toLowerCase().includes(search)) ||
-                (a.allocatedTo && a.allocatedTo.toLowerCase().includes(search)) ||
-                (a.location && a.location.toLowerCase().includes(search)) ||
-                (a.serial && a.serial.toLowerCase().includes(search))
-            );
+            const filtered = assetMasterList.filter(a => {
+                const matchLoc = !locFilter || a.location === locFilter;
+                const matchSearch = !search || 
+                    (a.assetTag && a.assetTag.toLowerCase().includes(search)) ||
+                    (a.assetNo && a.assetNo.toLowerCase().includes(search)) ||
+                    (a.allocatedTo && a.allocatedTo.toLowerCase().includes(search)) ||
+                    (a.serial && a.serial.toLowerCase().includes(search));
+                return matchLoc && matchSearch;
+            });
 
             if (!filtered.length) {
-                tbody.innerHTML = `<tr><td colspan="8" class="p-6 text-center text-slate-400 font-medium">No assets found. Upload a CSV or add assets via Setup menu.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="8" class="p-6 text-center text-slate-400 font-medium">No assets match the selected location/search.</td></tr>`;
                 return;
             }
 
             tbody.innerHTML = filtered.map(a => `
                 <tr class="hover:bg-slate-50 border-b border-slate-100">
-                    <td class="p-3 font-mono font-bold text-red-600">${a.assetNo}<br><span class="text-[10px] text-slate-400">SN: ${a.serial || 'N/A'}</span></td>
+                    <td class="p-3 font-mono font-bold text-red-600">${a.assetTag || 'N/A'}<br><span class="text-[10px] text-slate-400">SN: ${a.serial || 'N/A'}</span></td>
+                    <td class="p-3 font-mono text-xs font-bold text-slate-700">${a.assetNo || 'N/A'}</td>
+                    <td class="p-3"><span class="bg-slate-100 text-slate-800 text-[10px] px-2 py-0.5 rounded font-bold">${a.assetType || 'PC'}</span></td>
                     <td class="p-3 font-semibold text-slate-800">${a.allocatedTo}<br><span class="text-[10px] text-slate-400">${a.department || 'N/A'} (${a.userMail || ''})</span></td>
                     <td class="p-3"><span class="bg-slate-100 text-slate-800 text-[10px] px-2 py-0.5 rounded font-semibold">${a.location}</span></td>
-                    <td class="p-3">${a.assetType || 'PC'} <br><span class="text-[10px] text-slate-500">${a.manufacturer || ''} ${a.model || ''}</span></td>
+                    <td class="p-3 text-slate-600">${a.manufacturer || ''} ${a.model || ''}</td>
                     <td class="p-3 font-mono">${a.processor || 'N/A'}<br><span class="text-[10px] text-indigo-600 font-bold">RAM: ${a.memory || 'N/A'}</span></td>
-                    <td class="p-3 font-mono">${a.hdd || 'N/A'}<br><span class="text-[10px] text-slate-500">${a.os || 'N/A'}</span></td>
-                    <td class="p-3 text-[11px]">
-                        <span class="bg-blue-50 text-blue-700 px-1.5 py-0.5 rounded">OneDrive: ${a.onedrive || 'N/A'}</span><br>
-                        <span class="bg-purple-50 text-purple-700 px-1.5 py-0.5 rounded mt-1 inline-block">USB: ${a.usb || 'N/A'}</span>
-                    </td>
                     <td class="p-3 text-right">
-                        <button onclick="openEditAssetModal('${a.assetNo}')" class="bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold px-2 py-1 rounded border border-slate-300">
+                        <button onclick="openEditAssetModal('${a.assetTag}')" class="bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold px-2 py-1 rounded border border-slate-300">
                             <i class="fa-solid fa-pen text-slate-500 mr-1"></i> Edit
                         </button>
                     </td>
+                </tr>
+            `).join('');
+        }
+
+        // CUSTOM COLUMN ASSET EXPORT
+        function executeCustomAssetExport() {
+            const locFilter = document.getElementById('export-asset-location').value;
+            const checkboxes = document.querySelectorAll('.asset-col-chk:checked');
+            const selectedCols = Array.from(checkboxes).map(cb => cb.value);
+
+            if (selectedCols.length === 0) {
+                showToast('Please select at least one column to export!', 'error');
+                return;
+            }
+
+            const filtered = assetMasterList.filter(a => !locFilter || a.location === locFilter);
+            if (filtered.length === 0) {
+                showToast('No assets available for export with this location filter.', 'error');
+                return;
+            }
+
+            // Map keys to headers
+            const headerNames = {
+                assetTag: 'Asset TAG', assetNo: 'Asset Number', assetType: 'Asset Type',
+                allocatedTo: 'Allocated To', userMail: 'User Mail ID', department: 'Department',
+                location: 'Location', manufacturer: 'Manufacturer', model: 'Asset Model',
+                serial: 'Serial Number', systemName: 'System Name', remarks: 'Remarks',
+                memory: 'Memory Size', processor: 'Processor', os: 'Operating System',
+                hdd: 'Hard Drive Size', osUpg: 'OS Upg. Required?', onedrive: 'One drive', usb: 'USB Access'
+            };
+
+            let csvContent = selectedCols.map(c => headerNames[c] || c).join(',') + '\n';
+
+            filtered.forEach(a => {
+                let row = selectedCols.map(col => {
+                    let val = a[col] || '';
+                    return `"${String(val).replace(/"/g, '""')}"`;
+                });
+                csvContent += row.join(',') + '\n';
+            });
+
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.setAttribute("href", url);
+            link.setAttribute("download", `SICAL_Asset_Register_${locFilter || 'All_Locations'}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+
+            closeModal('export-asset-modal');
+            showToast(`Asset report successfully exported (${filtered.length} records)!`, 'success');
+        }
+
+        // ASSET HISTORY TABLE RENDERING
+        function renderAssetHistoryTable() {
+            const search = (document.getElementById('asset-history-search')?.value || '').toLowerCase();
+            const tbody = document.getElementById('asset-history-table-body');
+            if (!tbody) return;
+
+            const filtered = assetHistoryList.filter(h => 
+                !search || 
+                (h.assetTag && h.assetTag.toLowerCase().includes(search)) ||
+                (h.assetNo && h.assetNo.toLowerCase().includes(search)) ||
+                h.user.toLowerCase().includes(search) ||
+                h.action.toLowerCase().includes(search)
+            );
+
+            if (!filtered.length) {
+                tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-400 font-medium">No asset history logs found yet. Reassign an asset to record history.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(h => `
+                <tr class="hover:bg-slate-50 border-b border-slate-100">
+                    <td class="p-3 font-mono font-bold text-red-600">${h.assetTag || 'N/A'}</td>
+                    <td class="p-3 font-mono text-xs font-bold text-slate-700">${h.assetNo || 'N/A'}</td>
+                    <td class="p-3 font-semibold text-slate-800">👤 ${h.user}</td>
+                    <td class="p-3 text-slate-600">${h.department || 'N/A'}</td>
+                    <td class="p-3"><span class="bg-slate-100 text-slate-800 text-[10px] px-2 py-0.5 rounded font-semibold">${h.location}</span></td>
+                    <td class="p-3"><span class="bg-indigo-50 text-indigo-700 text-[10px] px-2 py-0.5 rounded font-bold">${h.action}</span></td>
+                    <td class="p-3 font-mono text-slate-500">${h.timestamp}</td>
                 </tr>
             `).join('');
         }
@@ -1698,8 +2052,8 @@
             if (!datalist) return;
             datalist.innerHTML = '';
             assetMasterList.forEach((item) => {
-                datalist.innerHTML += `<option value="${item.assetNo}">Asset: ${item.assetNo} - ${item.allocatedTo} (${item.location})</option>`;
-                datalist.innerHTML += `<option value="${item.allocatedTo}">User: ${item.allocatedTo} (${item.assetNo})</option>`;
+                datalist.innerHTML += `<option value="${item.assetTag}">Asset TAG: ${item.assetTag} - ${item.allocatedTo} (${item.location})</option>`;
+                datalist.innerHTML += `<option value="${item.allocatedTo}">User: ${item.allocatedTo} (${item.assetTag})</option>`;
             });
         }
 
@@ -1707,14 +2061,15 @@
             if (!val || val.trim() === '') return;
             const cleanVal = val.trim().toLowerCase();
             const match = assetMasterList.find(a => 
-                (a.assetNo && a.assetNo.toLowerCase() === cleanVal) || 
+                (a.assetTag && a.assetTag.toLowerCase() === cleanVal) || 
+                (a.assetNo && a.assetNo.toLowerCase() === cleanVal) ||
                 (a.allocatedTo && a.allocatedTo.toLowerCase() === cleanVal)
             );
             if (match) {
                 document.getElementById('ticket-name').value = match.allocatedTo || '';
                 document.getElementById('ticket-department').value = match.department || '';
                 document.getElementById('ticket-location').value = match.location || '';
-                document.getElementById('ticket-asset').value = match.assetNo || '';
+                document.getElementById('ticket-asset').value = match.assetTag || '';
                 document.getElementById('ticket-model').value = `${match.manufacturer} ${match.model} (${match.memory || ''}, ${match.processor || ''})`.trim();
                 document.getElementById('ticket-serial').value = match.serial || '';
                 document.getElementById('ticket-system-name').value = match.systemName || '';
@@ -1777,7 +2132,7 @@
                 (a.allocatedTo && a.allocatedTo.toLowerCase() === userName) ||
                 (a.userMail && a.userMail.toLowerCase() === userEmail)
             );
-            const assetTags = matchedAssets.map(a => a.assetNo ? a.assetNo.toLowerCase() : '');
+            const assetTags = matchedAssets.map(a => a.assetTag ? a.assetTag.toLowerCase() : '');
 
             return ticketsList.filter(t => {
                 const tName = t.name ? t.name.toLowerCase() : '';
@@ -1987,7 +2342,7 @@
                         <div><span class="text-[10px] font-bold text-slate-400 uppercase">Raised By</span><p class="font-semibold text-indigo-600">${t.raisedBy || 'N/A'}</p></div>
                         <div><span class="text-[10px] font-bold text-slate-400 uppercase">Department</span><p>${t.department || 'N/A'}</p></div>
                         <div><span class="text-[10px] font-bold text-slate-400 uppercase">Location</span><p>${t.location}</p></div>
-                        <div><span class="text-[10px] font-bold text-slate-400 uppercase">Asset Tag</span><p class="font-mono">${t.asset}</p></div>
+                        <div><span class="text-[10px] font-bold text-slate-400 uppercase">Asset TAG</span><p class="font-mono">${t.asset}</p></div>
                         <div><span class="text-[10px] font-bold text-slate-400 uppercase">Category</span><p>${t.category}</p></div>
                         <div><span class="text-[10px] font-bold text-slate-400 uppercase">Priority</span><p>${t.priority}</p></div>
                         <div class="col-span-2"><span class="text-[10px] font-bold text-slate-400 uppercase">Subject</span><p class="font-semibold">${t.subject}</p></div>
@@ -2143,7 +2498,7 @@
             }
         }
 
-        // FILE UPLOAD (SUPPORTING 18 COLUMNS)
+        // FILE UPLOAD (SUPPORTING ASSET TAG & ASSET NUMBER)
         function handleFileUpload(event) {
             const file = event.target.files[0];
             if (file) {
@@ -2154,47 +2509,65 @@
                     for (let i = 1; i < lines.length; i++) {
                         const cols = lines[i].split(',');
                         if (cols.length >= 11) {
-                            const assetNo = cols[0] ? cols[0].trim() : '';
-                            const allocatedTo = cols[1] ? cols[1].trim() : '';
-                            const userMail = cols[2] ? cols[2].trim() : '';
-                            const department = cols[3] ? cols[3].trim() : '';
-                            const assetType = cols[4] ? cols[4].trim() : '';
-                            const location = cols[5] ? cols[5].trim().toUpperCase() : '';
-                            const manufacturer = cols[6] ? cols[6].trim() : '';
-                            const model = cols[7] ? cols[7].trim() : '';
-                            const serial = cols[8] ? cols[8].trim() : '';
-                            const systemName = cols[9] ? cols[9].trim() : '';
-                            const remarks = cols[10] ? cols[10].trim() : '';
+                            const assetTag = cols[0] ? cols[0].trim() : '';
+                            const assetNo = cols[1] ? cols[1].trim() : '';
+                            const allocatedTo = cols[2] ? cols[2].trim() : '';
+                            const userMail = cols[3] ? cols[3].trim() : '';
+                            const department = cols[4] ? cols[4].trim() : '';
+                            const assetType = cols[5] ? cols[5].trim().toUpperCase() : 'LAPTOP';
+                            const location = cols[6] ? cols[6].trim().toUpperCase() : '';
+                            const manufacturer = cols[7] ? cols[7].trim() : '';
+                            const model = cols[8] ? cols[8].trim() : '';
+                            const serial = cols[9] ? cols[9].trim() : '';
+                            const systemName = cols[10] ? cols[10].trim() : '';
+                            const remarks = cols[11] ? cols[11].trim() : '';
                             
-                            // New Extended Specs (columns 11 to 17)
-                            const memory = cols[11] ? cols[11].trim() : '';
-                            const processor = cols[12] ? cols[12].trim() : '';
-                            const os = cols[13] ? cols[13].trim() : '';
-                            const hdd = cols[14] ? cols[14].trim() : '';
-                            const osUpg = cols[15] ? cols[15].trim() : '';
-                            const onedrive = cols[16] ? cols[16].trim() : '';
-                            const usb = cols[17] ? cols[17].trim() : '';
+                            const memory = cols[12] ? cols[12].trim() : '';
+                            const processor = cols[13] ? cols[13].trim() : '';
+                            const os = cols[14] ? cols[14].trim() : '';
+                            const hdd = cols[15] ? cols[15].trim() : '';
+                            const osUpg = cols[16] ? cols[16].trim() : '';
+                            const onedrive = cols[17] ? cols[17].trim() : '';
+                            const usb = cols[18] ? cols[18].trim() : '';
 
-                            if (assetNo !== '') {
-                                if (!assetMasterList.some(a => a.assetNo.toLowerCase() === assetNo.toLowerCase())) {
+                            if (assetTag !== '') {
+                                if (!assetMasterList.some(a => a.assetTag && a.assetTag.toLowerCase() === assetTag.toLowerCase())) {
                                     assetMasterList.push({ 
-                                        assetNo, allocatedTo, userMail, department, assetType, location, 
+                                        assetTag, assetNo, allocatedTo, userMail, department, assetType, location, 
                                         manufacturer, model, serial, systemName, remarks,
                                         memory, processor, os, hdd, osUpg, onedrive, usb 
+                                    });
+
+                                    assetHistoryList.unshift({
+                                        assetTag,
+                                        assetNo,
+                                        user: allocatedTo,
+                                        department,
+                                        location,
+                                        action: 'Bulk Upload Registration',
+                                        timestamp: new Date().toLocaleString()
                                     });
                                 }
                                 if (location !== '' && !locationsList.includes(location)) {
                                     locationsList.push(location);
                                 }
+                                if (assetType !== '' && !assetTypesList.includes(assetType)) {
+                                    assetTypesList.push(assetType);
+                                }
                             }
                         }
                     }
                     saveAssets();
+                    saveAssetHistory();
                     saveLocations();
+                    saveAssetTypes();
                     renderLocationDropdowns();
+                    renderAssetTypeDropdowns();
                     renderLocationMasterTable();
+                    renderAssetTypeMasterTable();
                     populateUserDropdown();
                     renderAssetDirectoryTable();
+                    renderAssetHistoryTable();
                     const statusBox = document.getElementById('upload-status');
                     if (statusBox) {
                         document.getElementById('upload-status-text').innerText = `Imported: "${file.name}" successfully!`;
@@ -2208,12 +2581,12 @@
         }
 
         function downloadCSVTemplate() {
-            const csvHeader = "Asset Number,ALLOATE TO,User Mail ID,Department,Asset Type,Location,MANUFACTURER NAME,ASSET MODEL,SERIAL NUMBER,System Name,REMARKS,MEMORY SIZE,PROCESSOR,OPERATING SYSTEM,HARD DRIVE SIZE,OS Upg.Required?,One drive,USB Access\n"
-                            + "SICAL/LT/793,Rajadurai K.,rajadurai@sical.com,SMART-CFS,LAPTOP,TUTICORIN-SMARTCFS,LENOVO,E14 G5,PF04TQDN,SICLT793,..,16 GB,Intel i5,Windows 11 Pro,512 GB SSD,No,Configured,Enabled\n";
+            const csvHeader = "Asset TAG,Asset Number,ALLOATE TO,User Mail ID,Department,Asset Type,Location,MANUFACTURER NAME,ASSET MODEL,SERIAL NUMBER,System Name,REMARKS,MEMORY SIZE,PROCESSOR,OPERATING SYSTEM,HARD DRIVE SIZE,OS Upg.Required?,One drive,USB Access\n"
+                            + "HQC/IT/SMTL/001D,SICAL/DT/0402,Rajadurai K.,rajadurai@sical.com,DESKTOP,TUTICORIN-SMARTCFS,LENOVO,ThinkCentre,PF04TQDN,SICLT793,..,16 GB,Intel i5,Windows 11 Pro,512 GB SSD,No,Configured,Enabled\n";
             const blob = new Blob([csvHeader], { type: 'text/csv' });
             const link = document.createElement("a");
             link.setAttribute("href", URL.createObjectURL(blob));
-            link.setAttribute("download", "SICAL_Master_Asset_Template_18Cols.csv");
+            link.setAttribute("download", "SICAL_Master_Asset_Template_DualID.csv");
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
@@ -2221,7 +2594,7 @@
 
         function downloadExcelReport() {
             const filtered = getFilteredReportTickets();
-            let csvContent = "Asset_Number,Location,Department,Allocated_To,Raised_By,Category,Subject,Priority,Status,Created\n";
+            let csvContent = "Asset_TAG,Asset_Number,Location,Department,Allocated_To,Raised_By,Category,Subject,Priority,Status,Created\n";
             filtered.forEach(t => {
                 const created = t.createdAt ? new Date(t.createdAt).toLocaleDateString() : 'N/A';
                 csvContent += `${t.asset},${t.location},${t.department || ''},${t.name},${t.raisedBy || 'N/A'},${t.category},"${t.subject}",${t.priority},${t.status},${created}\n`;
