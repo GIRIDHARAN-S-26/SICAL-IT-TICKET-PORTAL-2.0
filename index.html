@@ -350,6 +350,7 @@
            <th class="p-3 bg-slate-50">Processor &amp; RAM</th>
            <th class="p-3 bg-slate-50">Storage &amp; OS</th>
            <th class="p-3 bg-slate-50">Security / USB</th>
+           <th class="p-3 bg-slate-50 text-right">Actions</th>
           </tr>
          </thead>
          <tbody id="asset-directory-table-body" class="divide-y divide-slate-100 font-medium text-xs">
@@ -557,7 +558,7 @@
           <input type="text" id="manual-system-name" placeholder="e.g. SICLT800" required class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-red-500">
          </div>
         </div>
-        <!-- NEW TECHNICAL SPECS FIELDS -->
+        <!-- TECHNICAL SPECS FIELDS -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4 bg-slate-50 p-4 rounded-lg border border-slate-200">
          <div>
           <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Memory Size</label>
@@ -794,6 +795,47 @@
      <div class="flex justify-end space-x-3 pt-2">
       <button type="button" onclick="closeModal('edit-user-modal')" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-bold rounded-lg">Cancel</button> 
       <button type="submit" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-bold rounded-lg shadow-sm">Save Changes</button>
+     </div>
+    </form>
+   </div>
+  </div>
+
+  <!-- EDIT ASSET MODAL -->
+  <div id="edit-asset-modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex justify-center items-center p-4 z-50">
+   <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg overflow-hidden border border-slate-200">
+    <div class="bg-slate-900 text-white p-4 flex justify-between items-center">
+     <h3 class="font-bold text-sm uppercase tracking-wider">Edit Asset Allocation &amp; Details</h3>
+     <button onclick="closeModal('edit-asset-modal')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+    </div>
+    <form onsubmit="handleSaveAssetEdit(event)" class="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
+     <input type="hidden" id="edit-asset-tag">
+     <div>
+      <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Asset Number (ID)</label> 
+      <input type="text" id="edit-asset-no-display" disabled class="w-full border border-slate-200 bg-slate-100 rounded-lg p-2 text-sm text-slate-500 font-bold font-mono">
+     </div>
+     <div class="grid grid-cols-2 gap-4">
+      <div>
+       <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Allocated To (Name)</label> 
+       <input type="text" id="edit-asset-allocated" required class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-red-500">
+      </div>
+      <div>
+       <label class="block text-xs font-bold text-slate-600 uppercase mb-1">User Mail ID</label> 
+       <input type="email" id="edit-asset-mail" required class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-red-500">
+      </div>
+     </div>
+     <div class="grid grid-cols-2 gap-4">
+      <div>
+       <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Department</label> 
+       <input type="text" id="edit-asset-dept" required class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-red-500">
+      </div>
+      <div>
+       <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Location</label> 
+       <select id="edit-asset-location" required class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-red-500"></select>
+      </div>
+     </div>
+     <div class="flex justify-end space-x-3 pt-2 border-t border-slate-100">
+      <button type="button" onclick="closeModal('edit-asset-modal')" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-bold rounded-lg">Cancel</button> 
+      <button type="submit" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-bold rounded-lg shadow-sm">Save Asset Changes</button>
      </div>
     </form>
    </div>
@@ -1119,7 +1161,7 @@
                 initApp();
             } else {
                 const err = document.getElementById('login-error');
-                if (err) err.classList.add('hidden'); // wait, keep hidden logic fixed
+                if (err) err.classList.remove('hidden');
             }
         }
 
@@ -1547,6 +1589,41 @@
             e.target.reset();
         }
 
+        // EDIT ASSET HANDLERS
+        function openEditAssetModal(assetNo) {
+            const asset = assetMasterList.find(a => a.assetNo === assetNo);
+            if (!asset) return;
+
+            document.getElementById('edit-asset-tag').value = asset.assetNo;
+            document.getElementById('edit-asset-no-display').value = asset.assetNo;
+            document.getElementById('edit-asset-allocated').value = asset.allocatedTo || '';
+            document.getElementById('edit-asset-mail').value = asset.userMail || '';
+            document.getElementById('edit-asset-dept').value = asset.department || '';
+            
+            const locSelect = document.getElementById('edit-asset-location');
+            locSelect.innerHTML = locationsList.map(l => `<option value="${l}" ${l === asset.location ? 'selected' : ''}>${l}</option>`).join('');
+
+            openModal('edit-asset-modal');
+        }
+
+        function handleSaveAssetEdit(e) {
+            e.preventDefault();
+            const assetNo = document.getElementById('edit-asset-tag').value;
+            const asset = assetMasterList.find(a => a.assetNo === assetNo);
+            if (!asset) return;
+
+            asset.allocatedTo = document.getElementById('edit-asset-allocated').value.trim();
+            asset.userMail = document.getElementById('edit-asset-mail').value.trim();
+            asset.department = document.getElementById('edit-asset-dept').value.trim();
+            asset.location = document.getElementById('edit-asset-location').value;
+
+            saveAssets();
+            renderAssetDirectoryTable();
+            populateUserDropdown();
+            closeModal('edit-asset-modal');
+            showToast(`Asset "${assetNo}" updated successfully!`, 'success');
+        }
+
         // ASSET DIRECTORY TABLE RENDERING
         function renderAssetDirectoryTable() {
             const search = (document.getElementById('asset-directory-search')?.value || '').toLowerCase();
@@ -1562,7 +1639,7 @@
             );
 
             if (!filtered.length) {
-                tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-400 font-medium">No assets found. Upload a CSV or add assets via Setup menu.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="8" class="p-6 text-center text-slate-400 font-medium">No assets found. Upload a CSV or add assets via Setup menu.</td></tr>`;
                 return;
             }
 
@@ -1577,6 +1654,11 @@
                     <td class="p-3 text-[11px]">
                         <span class="bg-blue-50 text-blue-700 px-1.5 py-0.5 rounded">OneDrive: ${a.onedrive || 'N/A'}</span><br>
                         <span class="bg-purple-50 text-purple-700 px-1.5 py-0.5 rounded mt-1 inline-block">USB: ${a.usb || 'N/A'}</span>
+                    </td>
+                    <td class="p-3 text-right">
+                        <button onclick="openEditAssetModal('${a.assetNo}')" class="bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold px-2 py-1 rounded border border-slate-300">
+                            <i class="fa-solid fa-pen text-slate-500 mr-1"></i> Edit
+                        </button>
                     </td>
                 </tr>
             `).join('');
